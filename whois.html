@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>domain whois — alan adı sorgu terminali</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0A0E14;
+    --panel:#0F151C;
+    --panel-2:#131A22;
+    --line:#1E2731;
+    --line-soft:#161E27;
+    --text:#C9D1D9;
+    --text-bright:#EDF1F5;
+    --muted:#5C6B79;
+    --muted-2:#3E4C58;
+    --amber:#E8A33D;
+    --amber-dim:#7A5A26;
+    --coral:#E2574C;
+    --coral-dim:#5A2620;
+    --teal:#4FC8AE;
+    --teal-dim:#1E4A40;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:var(--sans);
+    min-height:100vh;
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size: 42px 42px;
+    background-position: -1px -1px;
+  }
+  .wrap{
+    max-width:840px;
+    margin:0 auto;
+    padding:56px 24px 80px;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:48px;
+  }
+  .logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:var(--mono);
+    font-size:15px;
+    color:var(--text-bright);
+    font-weight:500;
+  }
+  .logo .dot{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--amber);
+    box-shadow:0 0 0 3px rgba(232,163,61,0.12);
+  }
+  .logo b{font-weight:600;}
+  .logo span{color:var(--muted);}
+  nav{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--muted);
+    letter-spacing:.02em;
+  }
+  nav span{color:var(--muted-2);margin:0 8px;}
+
+  /* ---------- hero copy ---------- */
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--teal);
+    margin:0 0 14px;
+  }
+  h1{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:34px;
+    line-height:1.25;
+    color:var(--text-bright);
+    margin:0 0 12px;
+    letter-spacing:-0.01em;
+  }
+  h1 em{
+    font-style:normal;
+    font-family:var(--mono);
+    font-weight:500;
+    color:var(--amber);
+  }
+  .sub{
+    font-size:15px;
+    line-height:1.65;
+    color:var(--muted);
+    max-width:520px;
+    margin:0 0 40px;
+  }
+
+  /* ---------- terminal card ---------- */
+  .terminal{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .term-bar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:12px 16px;
+    border-bottom:1px solid var(--line);
+    background:var(--panel-2);
+  }
+  .term-bar i{
+    width:10px;height:10px;border-radius:50%;
+    background:var(--line);
+  }
+  .term-bar span{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--muted);
+    margin-left:6px;
+  }
+  .term-body{
+    padding:22px 20px 26px;
+  }
+  .prompt-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:var(--mono);
+    font-size:16px;
+  }
+  .prompt-row .sym{
+    color:var(--amber);
+    flex-shrink:0;
+  }
+  .prompt-row .cmd{
+    color:var(--muted);
+    flex-shrink:0;
+  }
+  #domain-input{
+    flex:1;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--text-bright);
+    font-family:var(--mono);
+    font-size:16px;
+    padding:6px 0;
+    caret-color:var(--amber);
+  }
+  #domain-input::placeholder{color:var(--muted-2);}
+  .cursor{
+    width:9px;height:18px;
+    background:var(--amber);
+    animation:blink 1s step-end infinite;
+    flex-shrink:0;
+  }
+  #domain-input:focus + .cursor{display:none;}
+  @keyframes blink{50%{opacity:0;}}
+
+  .hint-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:16px;
+  }
+  .chip{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--muted);
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    padding:5px 10px;
+    border-radius:6px;
+    cursor:pointer;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .chip:hover{border-color:var(--muted-2); color:var(--text);}
+
+  .run-row{
+    margin-top:20px;
+    display:flex;
+    justify-content:flex-end;
+  }
+  #run-btn{
+    font-family:var(--mono);
+    font-size:13px;
+    font-weight:500;
+    color:var(--ink);
+    background:var(--amber);
+    border:none;
+    padding:10px 18px;
+    border-radius:6px;
+    cursor:pointer;
+    letter-spacing:.02em;
+    transition:opacity .15s ease, transform .1s ease;
+  }
+  #run-btn:hover{opacity:.88;}
+  #run-btn:active{transform:scale(0.98);}
+  #run-btn:disabled{opacity:.5; cursor:default;}
+
+  /* ---------- results ---------- */
+  #results{
+    margin-top:28px;
+    display:none;
+  }
+  .status-strip{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:14px 16px;
+    border-radius:8px;
+    margin-bottom:18px;
+    font-family:var(--mono);
+    font-size:13px;
+  }
+  .status-strip .sdot{
+    width:8px;height:8px;border-radius:50%;
+    flex-shrink:0;
+  }
+  .status-strip.taken{background:rgba(226,87,76,0.08); border:1px solid var(--coral-dim);}
+  .status-strip.taken .sdot{background:var(--coral);}
+  .status-strip.taken .stext{color:#F0A29C;}
+  .status-strip.available{background:rgba(79,200,174,0.08); border:1px solid var(--teal-dim);}
+  .status-strip.available .sdot{background:var(--teal);}
+  .status-strip.available .stext{color:#8FE0CE;}
+  .status-strip .meta{color:var(--muted); margin-left:auto; font-size:12px;}
+
+  .record{
+    font-family:var(--mono);
+    font-size:13px;
+    line-height:1;
+  }
+  .rline{
+    display:grid;
+    grid-template-columns:180px 1fr;
+    gap:16px;
+    padding:9px 2px;
+    border-bottom:1px solid var(--line-soft);
+    opacity:0;
+    transform:translateY(3px);
+    animation:reveal .35s ease forwards;
+  }
+  .rline:last-child{border-bottom:none;}
+  .rline .k{color:var(--muted);}
+  .rline .v{color:var(--text-bright); word-break:break-all;}
+  .rline .v.accent{color:var(--amber);}
+  @keyframes reveal{to{opacity:1; transform:translateY(0);}}
+
+  .section-label{
+    font-family:var(--mono);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--muted-2);
+    margin:22px 0 6px;
+  }
+  .section-label:first-child{margin-top:0;}
+
+  .footer-note{
+    margin-top:22px;
+    font-size:12px;
+    color:var(--muted-2);
+    line-height:1.6;
+    border-top:1px solid var(--line);
+    padding-top:16px;
+  }
+
+  /* ---------- feature strip ---------- */
+  .features{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+    margin-top:40px;
+  }
+  .feature{
+    background:var(--panel);
+    padding:20px 18px;
+  }
+  .feature .fi{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--muted-2);
+    margin-bottom:10px;
+  }
+  .feature h3{
+    font-size:14px;
+    font-weight:600;
+    color:var(--text-bright);
+    margin:0 0 6px;
+  }
+  .feature p{
+    font-size:12.5px;
+    line-height:1.6;
+    color:var(--muted);
+    margin:0;
+  }
+
+  footer{
+    margin-top:56px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--muted-2);
+    border-top:1px solid var(--line);
+    padding-top:20px;
+  }
+
+  @media (max-width:600px){
+    h1{font-size:26px;}
+    .rline{grid-template-columns:120px 1fr; font-size:12px;}
+    .features{grid-template-columns:1fr;}
+    .prompt-row{font-size:14px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo"><span class="dot"></span><b>whois</b><span>port</span></div>
+    <nav>KAYIT<span>/</span>DNS<span>/</span>SSL</nav>
+  </header>
+
+  <p class="eyebrow">Domain whois bilgileri</p>
+  <h1>Bir alan adının kime ait olduğunu <em>sorun.</em></h1>
+  <p class="sub">Bir domain yazın, sorgu terminali kayıt sahibini, kayıt şirketini ve son kullanma tarihini getirsin — tıpkı 1982'den beri yapıldığı gibi.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <i style="background:var(--coral); opacity:.5"></i>
+      <i style="background:var(--amber); opacity:.5"></i>
+      <i style="background:var(--teal); opacity:.5"></i>
+      <span>sorgu</span>
+    </div>
+    <div class="term-body">
+      <div class="prompt-row">
+        <span class="sym">$</span>
+        <span class="cmd">whois</span>
+        <input type="text" id="domain-input" placeholder="ornek-alan-adi.com" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="hint-row">
+        <div class="chip" data-domain="google.com">google.com</div>
+        <div class="chip" data-domain="wikipedia.org">wikipedia.org</div>
+      </div>
+      <div class="run-row">
+        <button id="run-btn">domain whois ↵</button>
+      </div>
+
+      <div id="results"></div>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feature">
+      <div class="fi">01 · MÜSAİTLİK</div>
+      <h3>Kayıt durumu</h3>
+      <p>Alan adı kayıtlı mı, boşta mı — tek bakışta renkli durum satırıyla görün.</p>
+    </div>
+    <div class="feature">
+      <div class="fi">02 · KAYIT DETAYI</div>
+      <h3>Whois bilgileri</h3>
+      <p>Kayıt şirketi, oluşturulma ve bitiş tarihi, isim sunucuları — gerçek whois çıktısı gibi.</p>
+    </div>
+  </div>
+
+  <footer>
+    <center><span>faysalkarasoy.com.tr</span></center>
+  </footer>
+
+</div>
+
+<script>
+const input = document.getElementById('domain-input');
+const runBtn = document.getElementById('run-btn');
+const results = document.getElementById('results');
+const chips = document.querySelectorAll('.chip');
+
+const WHOIS_ENDPOINT = 'Whois.ashx';
+
+const FIELD_MAP = [
+  ['domain','Alan adı'], ['domainName','Alan adı'], ['Domain','Alan adı'],
+  ['registrar','Kayıt şirketi'], ['Registrar','Kayıt şirketi'],
+  ['createdDate','Oluşturulma'], ['created','Oluşturulma'], ['CreationDate','Oluşturulma'], ['creationDate','Oluşturulma'],
+  ['updatedDate','Güncellenme'], ['updated','Güncellenme'], ['UpdatedDate','Güncellenme'],
+  ['expiryDate','Son kullanma'], ['expires','Son kullanma'], ['ExpirationDate','Son kullanma'], ['expirationDate','Son kullanma'],
+  ['status','Durum'], ['Status','Durum'], ['domainStatus','Durum'],
+  ['nameServers','İsim sunucuları'], ['NameServers','İsim sunucuları'], ['nameServer','İsim sunucuları'],
+  ['owner','Kayıt sahibi'], ['registrant','Kayıt sahibi'], ['Registrant','Kayıt sahibi'],
+];
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function isRegisteredGuess(obj, rawText){
+  const text = (rawText || JSON.stringify(obj) || '').toLowerCase();
+  if(text.includes('no match') || text.includes('not found') || text.includes('kayıtlı değil') || text.includes('available')) return false;
+  if(obj && (obj.registered === false || obj.available === true)) return false;
+  return true;
+}
+
+function renderStructured(domain, obj, rawText){
+  const registered = isRegisteredGuess(obj, rawText);
+  results.style.display = 'block';
+
+  if(!registered){
+    results.innerHTML = `
+      <div class="status-strip available">
+        <span class="sdot"></span>
+        <span class="stext">${escapeHtml(domain)} — kayıtlı değil, müsait görünüyor</span>
+        <span class="meta">kaynak: Whois.ashx</span>
+      </div>
+      <div class="footer-note">Whois.ashx üzerinden alınan yanıta göre.</div>
+    `;
+    return;
+  }
+
+  const lines = [];
+  FIELD_MAP.forEach(([key,label]) => {
+    if(obj[key] !== undefined && obj[key] !== null && obj[key] !== ''){
+      const val = Array.isArray(obj[key]) ? obj[key].join(' · ') : obj[key];
+      if(!lines.some(l => l[0] === label)) lines.push([label, val, label === 'Alan adı']);
+    }
+  });
+  if(!lines.length){
+    renderRaw(domain, rawText || JSON.stringify(obj, null, 2));
+    return;
+  }
+
+  const rowsHtml = lines.map((l, i) => `
+    <div class="rline" style="animation-delay:${i*45}ms">
+      <span class="k">${escapeHtml(l[0])}</span>
+      <span class="v${l[2] ? ' accent' : ''}">${escapeHtml(l[1])}</span>
+    </div>
+  `).join('');
+
+  results.innerHTML = `
+    <div class="status-strip taken">
+      <span class="sdot"></span>
+      <span class="stext">${escapeHtml(domain)} — kayıtlı</span>
+      <span class="meta">kaynak: Whois.ashx</span>
+    </div>
+    <div class="section-label">Whois kaydı</div>
+    <div class="record">${rowsHtml}</div>
+  `;
+}
+
+function renderRaw(domain, text){
+  const registered = isRegisteredGuess(null, text);
+  results.style.display = 'block';
+  results.innerHTML = `
+    <div class="status-strip ${registered ? 'taken' : 'available'}">
+      <span class="sdot"></span>
+      <span class="stext">${escapeHtml(domain)} — sorgu sonucu</span>
+      <span class="meta"></span>
+    </div>
+    <div class="section-label">Whois kaydı</div>
+    <pre style="font-family:var(--mono); font-size:12.5px; line-height:1.7; color:var(--text-bright); white-space:pre-wrap; word-break:break-word; margin:0; padding:14px 16px; background:var(--panel-2); border:1px solid var(--line); border-radius:8px;">${escapeHtml(text)}</pre>
+  `;
+}
+
+function renderError(domain, message){
+  results.style.display = 'block';
+  results.innerHTML = `
+    <div class="status-strip taken">
+      <span class="sdot"></span>
+      <span class="stext">${escapeHtml(domain)} — sorgu başarısız</span>
+      <span class="meta">kaynak: Whois.ashx</span>
+    </div>
+    <div class="footer-note">${escapeHtml(message)}</div>
+  `;
+}
+
+async function runQuery(){
+  const domain = input.value.trim();
+  if(!domain){ input.focus(); return; }
+
+  runBtn.disabled = true;
+  runBtn.textContent = 'sorgulanıyor…';
+  results.style.display = 'none';
+
+  try{
+    const url = WHOIS_ENDPOINT + '?domain=' + encodeURIComponent(domain);
+    const res = await fetch(url, { method: 'GET' });
+
+    if(!res.ok){
+      renderError(domain, 'Sunucu ' + res.status + ' durum kodu döndürdü.');
+      return;
+    }
+
+    const contentType = res.headers.get('content-type') || '';
+    const rawText = await res.text();
+
+    if(contentType.includes('application/json')){
+      try{
+        const obj = JSON.parse(rawText);
+        renderStructured(domain, obj, rawText);
+      }catch(e){
+        renderRaw(domain, rawText);
+      }
+    } else {
+      try{
+        const obj = JSON.parse(rawText);
+        renderStructured(domain, obj, rawText);
+      }catch(e){
+        renderRaw(domain, rawText);
+      }
+    }
+  }catch(err){
+    renderError(domain, 'Whois.ashx adresine ulaşılamadı: ' + err.message);
+  }finally{
+    runBtn.disabled = false;
+    runBtn.textContent = 'sorguyu çalıştır ↵';
+  }
+}
+
+runBtn.addEventListener('click', runQuery);
+input.addEventListener('keydown', e => { if(e.key === 'Enter') runQuery(); });
+chips.forEach(chip => {
+  chip.addEventListener('click', () => {
+    input.value = chip.dataset.domain;
+    runQuery();
+  });
+});
+
+window.addEventListener("load", function () {
+    document.getElementById("domain-input").focus();
+});
+</script>
+
+
+</body>
+</html>
